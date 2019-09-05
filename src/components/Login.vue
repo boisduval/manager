@@ -56,17 +56,16 @@ export default {
   },
   methods: {
     async handleLogin () {
-      const res = await this.$http.post('login', this.fomdata)
-      console.log(res)
-      if (res.body.meta.status === 200) {
-        this.$message.success(res.body.meta.msg)
+      const {body: {meta: {status, msg}, data: {token}}} = await this.$http.post('login', this.fomdata)
+      if (status === 200) {
+        this.$message.success(msg)
         setTimeout(() => {
           this.$router.push('/')
         }, 1000)
         // 存入token
-        localStorage.setItem('token', res.body.data.token)
-      } else if (res.body.meta.status === 400) {
-        this.$message.error(res.body.meta.msg)
+        localStorage.setItem('token', token)
+      } else if (status === 400) {
+        this.$message.error(msg)
       }
     }
   }
