@@ -88,7 +88,7 @@
             </el-col>
             <el-col :span="1">
               <div class="grid-content">
-                <a href="">退出</a>
+                <a href="" @click="signout()">退出</a>
               </div>
             </el-col>
           </el-row>
@@ -102,18 +102,30 @@
 
 <script>
 export default {
-  data() {
-    return {};
+  beforeCreate () {
+    // 判断是否登录
+    if (!localStorage.getItem('token')) {
+      this.$message.warning('你还没有登录')
+      this.$router.push({
+        name: 'login'
+      })
+    }
+  },
+  data () {
+    return {}
   },
   methods: {
-    handleOpen() {
-      console.log("handleOpen");
+    handleOpen () {
+      console.log('handleOpen')
     },
-    handleClose() {
-      console.log("handleClose");
+    handleClose () {
+      console.log('handleClose')
+    },
+    signout () {
+      localStorage.clear()
     }
   }
-};
+}
 </script>
 
 <style scoped>
