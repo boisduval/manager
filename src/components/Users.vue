@@ -22,7 +22,7 @@
         <el-table-column prop="username" label="姓名" width="80"></el-table-column>
         <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
         <el-table-column prop="mobile" label="电话" width="180"></el-table-column>
-        <el-table-column label="用户状态">
+        <el-table-column label="用户状态" width="100">
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.mg_state"
@@ -30,6 +30,11 @@
               inactive-color="#ff4949"
               @change="handleSwitchChange(scope.row)"
             ></el-switch>
+          </template>
+        </el-table-column>
+        <el-table-column label="创建时间">
+          <template slot-scope="scope">
+            {{scope.row.create_time | fmtDate}}
           </template>
         </el-table-column>
       </el-table>
@@ -139,27 +144,6 @@ export default {
     },
     // 搜索用户
     handleSearch () {
-      // const res = await this.$http.get('users', {
-      //   params: {
-      //     query: this.username,
-      //     pagenum: this.pagenum,
-      //     pagesize: this.pagesize
-      //   }
-      // })
-      // const data = res.data
-      // const {
-      //   meta: { msg, status }
-      // } = data
-      // if (status === 200) {
-      //   const {
-      //     data: { users, total }
-      //   } = data
-      //   this.tableData = users
-      //   this.total = total
-      //   this.$message.success(msg)
-      // } else {
-      //   this.$message.error(msg)
-      // }
       this.getUserMsg()
     },
     // 添加用户
