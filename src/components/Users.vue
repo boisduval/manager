@@ -19,17 +19,32 @@
       <!-- 表格 -->
       <el-table :data="tableData" stripe style="width: 100%">
         <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="username" label="姓名" width="180"></el-table-column>
+        <el-table-column prop="username" label="姓名" width="80"></el-table-column>
         <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
-        <el-table-column prop="mobile" label="电话"></el-table-column>
-        <el-table-column prop="mg_state" label="用户状态"></el-table-column>
+        <el-table-column prop="mobile" label="电话" width="180"></el-table-column>
+        <el-table-column label="用户状态">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.mg_state"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              @change="handleSwitchChange(scope.row)"
+            ></el-switch>
+          </template>
+        </el-table-column>
       </el-table>
     </el-card>
   </div>
 </template>
 
 <script>
+// import { async } from 'q'
 export default {
+  http: {
+    headers: {
+      Authorization: window.localStorage.getItem('token')
+    }
+  },
   created () {
     this.getUserMsg()
   },
@@ -42,17 +57,38 @@ export default {
     }
   },
   methods: {
+    // 获取用户列表
     async getUserMsg () {
       const res = await this.$http.get('users', {
-        headers: {
-          Authorization: window.localStorage.getItem('token')
-        },
         params: {
           pagenum: 1,
           pagesize: 10
         }
       })
-      console.log(res)
+      const data = res.data
+      const {
+        meta: { msg, status }
+      } = data
+      if (status === 200) {
+        const {
+          data: { users }
+        } = data
+        this.tableData = users
+        this.$message.success(msg)
+      } else {
+        this.$message.error(msg)
+      }
+    },
+    // 修改用户状态
+    async handleSwitchChange (user) {
+      const {
+        body: { meta }
+      } = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+      } else {
+        this.$message.error(meta.msg)
+      }
     }
   }
 }
