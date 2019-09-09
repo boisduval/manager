@@ -10,10 +10,9 @@
           <el-input v-model="fomdata.password" show-password type="password"></el-input>
         </el-form-item>
       </el-form>
-      <el-button type="primary" class="btn" @click="handleLogin()">登录</el-button>
+      <el-button type="primary" class="btn" @click="handleLogin">登录</el-button>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -42,56 +41,58 @@ export default {
       },
       rules: {
         // 这里的key要跟组件的v-model的key一样
-        username: [{
-          validator: checkName,
-          trigger: 'blur'
-        }],
+        username: [
+          {
+            validator: checkName,
+            trigger: 'blur'
+          }
+        ],
 
-        password: [{
-          validator: checkPsd,
-          trigger: 'blur'
-        }]
+        password: [
+          {
+            validator: checkPsd,
+            trigger: 'blur'
+          }
+        ]
       }
     }
   },
   methods: {
     async handleLogin () {
-      const {body: {meta: {status, msg}, data: {token}}} = await this.$http.post('login', this.fomdata)
-      if (status === 200) {
-        this.$message.success(msg)
-        setTimeout(() => {
-          this.$router.push('/')
-        }, 1000)
+      const {
+        body: { data, meta }
+      } = await this.$http.post('login', this.fomdata)
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+        this.$router.push('/')
         // 存入token
-        localStorage.setItem('token', token)
-      } else if (status === 400) {
-        this.$message.error(msg)
+        sessionStorage.setItem('token', data.token)
+      } else {
+        this.$message.error(meta.msg)
       }
     }
   }
 }
-
 </script>
 
 <style scoped>
-  .login {
-    height: 100%;
-    background-color: rgb(8, 35, 109);
-    display: flex;
-    justify-content: center;
-    align-items: center
-  }
+.login {
+  height: 100%;
+  background-color: rgb(8, 35, 109);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  .login-wrap {
-    width: 450px;
-    height: 350px;
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 4px
-  }
+.login-wrap {
+  width: 450px;
+  height: 350px;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 4px;
+}
 
-  .login-wrap .btn {
-    width: 100%;
-  }
-
+.login-wrap .btn {
+  width: 100%;
+}
 </style>

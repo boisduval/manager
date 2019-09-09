@@ -101,7 +101,7 @@
 export default {
   beforeCreate () {
     // 判断是否登录
-    if (!localStorage.getItem('token')) {
+    if (!sessionStorage.getItem('token')) {
       this.$message.warning('你还没有登录')
       this.$router.push({
         name: 'login'
@@ -119,7 +119,7 @@ export default {
       console.log('handleClose')
     },
     signout () {
-      localStorage.clear()
+      sessionStorage.clear()
     }
   }
 }

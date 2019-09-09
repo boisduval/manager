@@ -27,8 +27,8 @@
         style="width: 100%; max-height: 400px; overflow: scroll; margin-bottom: 20px"
         v-loading="loading"
       >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="username" label="姓名" width="80"></el-table-column>
+        <el-table-column prop="id" label="#" width="80"></el-table-column>
+        <el-table-column prop="username" label="姓名" width="120"></el-table-column>
         <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
         <el-table-column prop="mobile" label="电话" width="150"></el-table-column>
         <el-table-column label="用户状态" width="150">
@@ -108,7 +108,7 @@
 export default {
   http: {
     headers: {
-      Authorization: window.localStorage.getItem('token')
+      Authorization: window.sessionStorage.getItem('token')
     }
   },
   created () {
