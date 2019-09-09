@@ -11,9 +11,9 @@
       <el-row class="searchArea">
         <el-col :span="24">
           <el-input placeholder="请输入用户名" v-model="username" class="searchInput">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+            <el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>
           </el-input>
-          <el-button type="success" plain>添加用户</el-button>
+          <el-button type="success" plain @click="dialogFormVisible = true">添加用户</el-button>
         </el-col>
       </el-row>
       <!-- 表格 -->
@@ -33,12 +33,32 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 添加用户框 -->
+      <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
+        <el-form :model="formData" label-width="100px" :rules="rules">
+          <el-form-item label="用户名" prop="username">
+            <el-input v-model="formData.username" placeholder="请输入用户名"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input v-model="formData.password" placeholder="请输入密码"></el-input>
+          </el-form-item>
+          <el-form-item label="电子邮件" prop="email">
+            <el-input v-model="formData.email" placeholder="请输入电子邮件地址"></el-input>
+          </el-form-item>
+          <el-form-item label="电话" prop="mobile">
+            <el-input v-model="formData.mobile" placeholder="请输入电话"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="success" @click="handleAdd">添 加</el-button>
+        </div>
+      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script>
-// import { async } from 'q'
 export default {
   http: {
     headers: {
@@ -53,7 +73,20 @@ export default {
       tableData: [],
       username: '',
       pagenum: '',
-      pagesize: ''
+      pagesize: '',
+      dialogFormVisible: false,
+      formData: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      rules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+      }
     }
   },
   methods: {
@@ -89,6 +122,42 @@ export default {
       } else {
         this.$message.error(meta.msg)
       }
+    },
+    // 搜索用户
+    async handleSearch () {
+      const res = await this.$http.get('users', {
+        params: {
+          query: this.username,
+          pagenum: 1,
+          pagesize: 10
+        }
+      })
+      const data = res.data
+      const {
+        meta: { msg, status }
+      } = data
+      if (status === 200) {
+        const {
+          data: { users }
+        } = data
+        this.tableData = users
+        this.$message.success(msg)
+      } else {
+        this.$message.error(msg)
+      }
+    },
+    // 添加用户
+    async handleAdd () {
+      const {
+        body: { meta }
+      } = await this.$http.post('users', this.formData)
+      this.dialogFormVisible = false
+      if (meta.status === 201) {
+        this.$message.success(meta.msg)
+      } else {
+        this.$message.error(meta.msg)
+      }
+      this.getUserMsg()
     }
   }
 }
