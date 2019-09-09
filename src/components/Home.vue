@@ -4,11 +4,12 @@
       <!-- 侧边栏 -->
       <el-aside width="200px">
         <el-menu
-          default-active="2"
+          :default-active="this.$route.path"
           class="el-menu-vertical-demo"
           @open="handleOpen"
           @close="handleClose"
           unique-opened
+          :router="true"
         >
           <!-- 用户管理 -->
           <el-submenu index="1">
@@ -16,10 +17,10 @@
               <i class="el-icon-location"></i>
               <span>用户管理</span>
             </template>
-            <el-menu-item-group>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
-            </el-menu-item-group>
+            <el-menu-item index="users">
+              <i class="el-icon-user-solid"></i>
+              用户列表
+              </el-menu-item>
           </el-submenu>
 
           <!-- 权限管理 -->
@@ -69,18 +70,12 @@
               <el-menu-item index="1-2">选项2</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
-
         </el-menu>
       </el-aside>
       <el-container>
-
         <!-- 头部 -->
         <el-header>
-          <el-row
-            type="flex"
-            class="row-bg"
-            justify="end"
-          >
+          <el-row type="flex" class="row-bg" justify="end">
             <el-col :span="23">
               <div class="grid-content">
                 <h2>电商管理系统</h2>
@@ -88,13 +83,15 @@
             </el-col>
             <el-col :span="1">
               <div class="grid-content">
-                <a href="" @click="signout()">退出</a>
+                <a href @click="signout()">退出</a>
               </div>
             </el-col>
           </el-row>
         </el-header>
         <!-- 主要内容 -->
-        <el-main>Main</el-main>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
       </el-container>
     </el-container>
   </div>
