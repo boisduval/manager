@@ -17,7 +17,7 @@
         </el-col>
       </el-row>
       <!-- 表格 -->
-      <el-table :data="tableData" stripe style="width: 100%">
+      <el-table :data="tableData" stripe style="width: 100%;max-height:400px;overflow:scroll">
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="username" label="姓名" width="80"></el-table-column>
         <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
@@ -33,6 +33,7 @@
           </template>
         </el-table-column>
       </el-table>
+
       <!-- 添加用户框 -->
       <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
         <el-form :model="formData" label-width="100px" :rules="rules">
@@ -54,9 +55,19 @@
           <el-button type="success" @click="handleAdd">添 加</el-button>
         </div>
       </el-dialog>
+      <!-- 分页 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="pagenum"
+        :page-sizes="[2, 4, 6, 8, 10]"
+        :page-size="pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
     </el-card>
   </div>
-</template>
+</template>ß
 
 <script>
 export default {
@@ -72,8 +83,9 @@ export default {
     return {
       tableData: [],
       username: '',
-      pagenum: '',
-      pagesize: '',
+      pagenum: 1,
+      pagesize: 2,
+      total: 0,
       dialogFormVisible: false,
       formData: {
         username: '',
@@ -94,8 +106,9 @@ export default {
     async getUserMsg () {
       const res = await this.$http.get('users', {
         params: {
-          pagenum: 1,
-          pagesize: 10
+          query: this.username,
+          pagenum: this.pagenum,
+          pagesize: this.pagesize
         }
       })
       const data = res.data
@@ -104,9 +117,10 @@ export default {
       } = data
       if (status === 200) {
         const {
-          data: { users }
+          data: { users, total }
         } = data
         this.tableData = users
+        this.total = total
         this.$message.success(msg)
       } else {
         this.$message.error(msg)
@@ -124,27 +138,29 @@ export default {
       }
     },
     // 搜索用户
-    async handleSearch () {
-      const res = await this.$http.get('users', {
-        params: {
-          query: this.username,
-          pagenum: 1,
-          pagesize: 10
-        }
-      })
-      const data = res.data
-      const {
-        meta: { msg, status }
-      } = data
-      if (status === 200) {
-        const {
-          data: { users }
-        } = data
-        this.tableData = users
-        this.$message.success(msg)
-      } else {
-        this.$message.error(msg)
-      }
+    handleSearch () {
+      // const res = await this.$http.get('users', {
+      //   params: {
+      //     query: this.username,
+      //     pagenum: this.pagenum,
+      //     pagesize: this.pagesize
+      //   }
+      // })
+      // const data = res.data
+      // const {
+      //   meta: { msg, status }
+      // } = data
+      // if (status === 200) {
+      //   const {
+      //     data: { users, total }
+      //   } = data
+      //   this.tableData = users
+      //   this.total = total
+      //   this.$message.success(msg)
+      // } else {
+      //   this.$message.error(msg)
+      // }
+      this.getUserMsg()
     },
     // 添加用户
     async handleAdd () {
@@ -157,6 +173,18 @@ export default {
       } else {
         this.$message.error(meta.msg)
       }
+      this.formData = {}
+      this.getUserMsg()
+    },
+    // 分页
+    handleSizeChange (val) {
+      this.pagesize = val
+      console.log(`每页 ${val} 条`)
+      this.getUserMsg()
+    },
+    handleCurrentChange (val) {
+      this.pagenum = val
+      console.log(`当前页: ${val}`)
       this.getUserMsg()
     }
   }
