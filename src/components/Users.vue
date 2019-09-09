@@ -46,13 +46,24 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
+            <!-- 编辑 -->
             <el-button
               type="primary"
               icon="el-icon-edit"
               circle
               plain
               size="mini"
-              @click="dialogFormVisible = true; formData = scope.row; title = '添加用户'; disabled = true; isShow = false"
+              @click="dialogFormVisible = true; formData = scope.row; title = '编辑用户'; disabled = true; isShow = false"
+            ></el-button>
+            <!-- 删除 -->
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              circle
+              plain
+              size="mini"
+              @click="handleDelete(scope.row.id)"
+              ref="del"
             ></el-button>
           </template>
         </el-table-column>
@@ -217,6 +228,29 @@ export default {
       } else if (!this.isShow) {
         this.handleEdit()
       }
+    },
+    // 删除用户
+    handleDelete (id) {
+      this.$refs.del.$el.blur()
+      this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(async () => {
+          const {
+            body: { meta }
+          } = await this.$http.delete(`users/${id}`)
+          if (meta.status === 200) {
+            this.$message.success(meta.msg)
+          } else {
+            this.$message.error(meta.msg)
+          }
+          this.getUserMsg()
+        })
+        .catch(() => {
+          this.$message.info('已取消删除')
+        })
     }
   }
 }
