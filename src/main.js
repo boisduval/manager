@@ -11,7 +11,7 @@ import moment from 'moment'
 
 Vue.use(ElementUI)
 Vue.use(VueResource)
-Vue.use(moment)
+Vue.prototype.$moment = moment
 
 Vue.http.options.root = 'http://localhost:8888/api/private/v1/'
 Vue.filter('fmtDate', val => {

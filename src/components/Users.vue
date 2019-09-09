@@ -13,16 +13,25 @@
           <el-input placeholder="请输入用户名" v-model="username" class="searchInput">
             <el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>
           </el-input>
-          <el-button type="success" plain @click="dialogFormVisible = true">添加用户</el-button>
+          <el-button
+            type="success"
+            plain
+            @click="dialogFormVisible = true; disabled = false; title = '添加用户'; formData = {}; isShow = true"
+          >添加用户</el-button>
         </el-col>
       </el-row>
       <!-- 表格 -->
-      <el-table :data="tableData" stripe style="width: 100%;max-height:400px;overflow:scroll">
+      <el-table
+        :data="tableData"
+        stripe
+        style="width: 100%; max-height: 400px; overflow: scroll; margin-bottom: 20px"
+        v-loading="loading"
+      >
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="username" label="姓名" width="80"></el-table-column>
         <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
-        <el-table-column prop="mobile" label="电话" width="180"></el-table-column>
-        <el-table-column label="用户状态" width="100">
+        <el-table-column prop="mobile" label="电话" width="150"></el-table-column>
+        <el-table-column label="用户状态" width="150">
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.mg_state"
@@ -32,20 +41,30 @@
             ></el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="创建时间">
+        <el-table-column label="创建时间" width="180">
+          <template slot-scope="scope">{{scope.row.create_time | fmtDate}}</template>
+        </el-table-column>
+        <el-table-column label="操作">
           <template slot-scope="scope">
-            {{scope.row.create_time | fmtDate}}
+            <el-button
+              type="primary"
+              icon="el-icon-edit"
+              circle
+              plain
+              size="mini"
+              @click="dialogFormVisible = true; formData = scope.row; title = '添加用户'; disabled = true; isShow = false"
+            ></el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <!-- 添加用户框 -->
-      <el-dialog title="添加用户" :visible.sync="dialogFormVisible">
+      <!-- 添加或修改用户-框 -->
+      <el-dialog :title="title" :visible.sync="dialogFormVisible">
         <el-form :model="formData" label-width="100px" :rules="rules">
           <el-form-item label="用户名" prop="username">
-            <el-input v-model="formData.username" placeholder="请输入用户名"></el-input>
+            <el-input v-model="formData.username" placeholder="请输入用户名" :disabled="disabled"></el-input>
           </el-form-item>
-          <el-form-item label="密码" prop="password">
+          <el-form-item label="密码" prop="password" v-show="isShow">
             <el-input v-model="formData.password" placeholder="请输入密码"></el-input>
           </el-form-item>
           <el-form-item label="电子邮件" prop="email">
@@ -57,7 +76,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="success" @click="handleAdd">添 加</el-button>
+          <el-button type="success" @click="handleFunc">确 定</el-button>
         </div>
       </el-dialog>
       <!-- 分页 -->
@@ -103,12 +122,17 @@ export default {
           { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
-      }
+      },
+      loading: true,
+      disabled: true,
+      title: '修改用户',
+      isShow: true
     }
   },
   methods: {
     // 获取用户列表
     async getUserMsg () {
+      this.loading = true
       const res = await this.$http.get('users', {
         params: {
           query: this.username,
@@ -117,6 +141,7 @@ export default {
         }
       })
       const data = res.data
+      this.loading = false
       const {
         meta: { msg, status }
       } = data
@@ -151,7 +176,6 @@ export default {
       const {
         body: { meta }
       } = await this.$http.post('users', this.formData)
-      this.dialogFormVisible = false
       if (meta.status === 201) {
         this.$message.success(meta.msg)
       } else {
@@ -170,6 +194,29 @@ export default {
       this.pagenum = val
       console.log(`当前页: ${val}`)
       this.getUserMsg()
+    },
+    // 编辑用户
+    async handleEdit () {
+      const {
+        body: { meta }
+      } = await this.$http.put(`users/${this.formData.id}`, {
+        email: this.formData.email,
+        mobile: this.formData.mobile
+      })
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+      } else {
+        this.$message.error(meta.msg)
+      }
+    },
+    // 判断编辑或添加
+    handleFunc () {
+      this.dialogFormVisible = false
+      if (this.isShow) {
+        this.handleAdd()
+      } else if (!this.isShow) {
+        this.handleEdit()
+      }
     }
   }
 }
