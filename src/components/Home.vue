@@ -30,7 +30,7 @@
               <span>权限管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="1-1">
+              <el-menu-item index="roles">
                 <i class="el-icon-s-custom"></i>
                 角色列表
               </el-menu-item>
@@ -155,7 +155,6 @@ h2 {
   color: #333;
   text-align: left;
   line-height: 300px;
-  width: 300px !important;
   margin-top: 100px;
 }
 
@@ -173,6 +172,6 @@ h2 {
 /* aside */
 .el-aside span,
 .el-aside li {
-  font-size: Medium;
+  font-size: small;
 }
 </style>
