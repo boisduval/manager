@@ -8,6 +8,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import './assets/index.css'
 import moment from 'moment'
 import http from './plugins/http'
+import myBreadcrumb from './components/myBreadcrumb'
 
 Vue.use(ElementUI)
 Vue.use(http)
@@ -16,6 +17,8 @@ Vue.prototype.$moment = moment
 Vue.filter('fmtDate', val => {
   return moment(val).format('YYYY-MM-DD')
 })
+
+Vue.component('myBreadcrumb', myBreadcrumb)
 // Vue.config.productionTip = false
 
 /* eslint-disable no-new */

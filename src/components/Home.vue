@@ -30,8 +30,14 @@
               <span>权限管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
+              <el-menu-item index="1-1">
+                <i class="el-icon-s-custom"></i>
+                角色列表
+              </el-menu-item>
+              <el-menu-item index="rights">
+                <i class="el-icon-menu"></i>
+                权限列表
+              </el-menu-item>
             </el-menu-item-group>
           </el-submenu>
 
