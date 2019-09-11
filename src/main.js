@@ -3,17 +3,16 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import VueResource from 'vue-resource'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import './assets/index.css'
 import moment from 'moment'
+import http from './plugins/http'
 
 Vue.use(ElementUI)
-Vue.use(VueResource)
+Vue.use(http)
 Vue.prototype.$moment = moment
 
-Vue.http.options.root = 'http://localhost:8888/api/private/v1/'
 Vue.filter('fmtDate', val => {
   return moment(val).format('YYYY-MM-DD')
 })

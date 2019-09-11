@@ -65,6 +65,15 @@
               @click="handleDelete(scope.row.id)"
               ref="del"
             ></el-button>
+            <!-- 分配用户角色 -->
+            <el-button
+              type="success"
+              icon="el-icon-check"
+              circle
+              plain
+              size="mini"
+              @click="handleRole(scope.row.id)"
+            ></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -100,17 +109,37 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
       ></el-pagination>
+      <!-- 分配角色框 -->
+      <el-dialog title="分配用户角色" :visible.sync="dialogFormVisibleRole" width="40%">
+        <el-form :model="role">
+          <el-form-item label="用户名" id="name" :label-width="formLabelWidth">{{role.username}}</el-form-item>
+          <el-form-item label="角色" :label-width="formLabelWidth">
+            <div id="role">
+              {{currUserRId}}
+              <el-select v-model="currUserRId" size="medium">
+                <!-- 请选择              -->
+                <el-option label="请选择" :value="-1" disabled></el-option>
+                <el-option
+                  v-for="(item, i) in roleList"
+                  :key="i"
+                  :label="item.roleName"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
+            </div>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
+          <el-button type="primary" @click="handleEditRole">确 定</el-button>
+        </div>
+      </el-dialog>
     </el-card>
   </div>
 </template>ß
 
 <script>
 export default {
-  http: {
-    headers: {
-      Authorization: window.sessionStorage.getItem('token')
-    }
-  },
   created () {
     this.getUserMsg()
   },
@@ -137,7 +166,12 @@ export default {
       loading: true,
       disabled: true,
       title: '修改用户',
-      isShow: true
+      isShow: true,
+      dialogFormVisibleRole: false,
+      role: {},
+      currUserRId: -1,
+      formLabelWidth: '80px',
+      roleList: []
     }
   },
   methods: {
@@ -151,32 +185,33 @@ export default {
           pagesize: this.pagesize
         }
       })
-      const data = res.data
-      this.loading = false
       const {
-        meta: { msg, status }
-      } = data
-      if (status === 200) {
-        const {
-          data: { users, total }
-        } = data
+        data: { data, meta }
+      } = res
+      this.loading = false
+      if (meta.status === 200) {
+        const { users, total } = data
         this.tableData = users
         this.total = total
-        this.$message.success(msg)
+        this.$message.success(meta.msg)
       } else {
-        this.$message.error(msg)
+        this.$message.error(meta.msg)
       }
     },
     // 修改用户状态
     async handleSwitchChange (user) {
+      const res = await this.$http.put(
+        `users/${user.id}/state/${user.mg_state}`
+      )
       const {
-        body: { meta }
-      } = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+        data: { meta }
+      } = res
       if (meta.status === 200) {
         this.$message.success(meta.msg)
       } else {
         this.$message.error(meta.msg)
       }
+      console.log(res)
     },
     // 搜索用户
     handleSearch () {
@@ -185,7 +220,7 @@ export default {
     // 添加用户
     async handleAdd () {
       const {
-        body: { meta }
+        data: { meta }
       } = await this.$http.post('users', this.formData)
       if (meta.status === 201) {
         this.$message.success(meta.msg)
@@ -209,7 +244,7 @@ export default {
     // 编辑用户
     async handleEdit () {
       const {
-        body: { meta }
+        data: { meta }
       } = await this.$http.put(`users/${this.formData.id}`, {
         email: this.formData.email,
         mobile: this.formData.mobile
@@ -239,7 +274,7 @@ export default {
       })
         .then(async () => {
           const {
-            body: { meta }
+            data: { meta }
           } = await this.$http.delete(`users/${id}`)
           if (meta.status === 200) {
             this.$message.success(meta.msg)
@@ -251,6 +286,35 @@ export default {
         .catch(() => {
           this.$message.info('已取消删除')
         })
+    },
+    // 分配用户角色
+    async handleRole (id) {
+      this.dialogFormVisibleRole = true
+      // 需要得到role_id
+      const res = await this.$http.get(`users/${id}`)
+      const {
+        data: { data }
+      } = res
+      this.role = data
+      this.currUserRId = this.role.rid
+      // 获取角色列表
+      const res1 = await this.$http.get(`roles`)
+      this.roleList = res1.data.data
+    },
+    // 分配用户角色
+    async handleEditRole () {
+      const res = await this.$http.put(`users/${this.role.id}/role`, {
+        rid: this.currUserRId
+      })
+      this.dialogFormVisibleRole = false
+      const {
+        data: { meta }
+      } = res
+      if (meta.status === 200) {
+        this.$message.success(meta.msg)
+      } else {
+        this.$message.error(meta.msg)
+      }
     }
   }
 }
@@ -271,5 +335,12 @@ export default {
 }
 .searchArea .searchInput {
   width: 350px;
+}
+.el-button--danger.is-plain:focus {
+  background-color: #fef0f0;
+}
+#name,
+#role {
+  text-align: left;
 }
 </style>

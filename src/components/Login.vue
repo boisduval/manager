@@ -59,9 +59,8 @@ export default {
   },
   methods: {
     async handleLogin () {
-      const {
-        body: { data, meta }
-      } = await this.$http.post('login', this.fomdata)
+      const res = await this.$http.post('login', this.fomdata)
+      const {data: {data, meta}} = res
       if (meta.status === 200) {
         this.$message.success(meta.msg)
         this.$router.push('/')
