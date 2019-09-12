@@ -11,70 +11,15 @@
           unique-opened
           :router="true"
         >
-          <!-- 用户管理 -->
-          <el-submenu index="1">
+          <el-submenu :index="''+item.order" v-for="(item, index) in asideItem" :key="index">
             <template slot="title">
               <i class="el-icon-location"></i>
-              <span>用户管理</span>
+              <span>{{item.authName}}</span>
             </template>
-            <el-menu-item index="users">
-              <i class="el-icon-user-solid"></i>
-              用户列表
-              </el-menu-item>
-          </el-submenu>
-
-          <!-- 权限管理 -->
-          <el-submenu index="2">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>权限管理</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="roles">
-                <i class="el-icon-s-custom"></i>
-                角色列表
-              </el-menu-item>
-              <el-menu-item index="rights">
-                <i class="el-icon-menu"></i>
-                权限列表
-              </el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-
-          <!-- 商品管理 -->
-          <el-submenu index="3">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>商品管理</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-
-          <!-- 订单管理 -->
-          <el-submenu index="4">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>订单管理</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
-            </el-menu-item-group>
-          </el-submenu>
-
-          <!-- 数据统计 -->
-          <el-submenu index="5">
-            <template slot="title">
-              <i class="el-icon-location"></i>
-              <span>数据统计</span>
-            </template>
-            <el-menu-item-group>
-              <el-menu-item index="1-1">选项1</el-menu-item>
-              <el-menu-item index="1-2">选项2</el-menu-item>
-            </el-menu-item-group>
+            <el-menu-item v-for="(item1, index1) in item.children" :key="index1" :index="'/'+item1.path">
+              <i class="el-icon-menu"></i>
+              {{item1.authName}}
+            </el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
@@ -105,30 +50,44 @@
 
 <script>
 export default {
-  beforeCreate () {
+  beforeCreate() {
     // 判断是否登录
-    if (!sessionStorage.getItem('token')) {
-      this.$message.warning('你还没有登录')
+    if (!sessionStorage.getItem("token")) {
+      this.$message.warning("你还没有登录");
       this.$router.push({
-        name: 'login'
-      })
+        name: "login"
+      });
     }
   },
-  data () {
-    return {}
+  created() {
+    this.getAsideItem();
+  },
+  data() {
+    return {
+      asideItem: []
+    };
   },
   methods: {
-    handleOpen () {
-      console.log('handleOpen')
+    handleOpen() {
+      console.log("handleOpen");
     },
-    handleClose () {
-      console.log('handleClose')
+    handleClose() {
+      console.log("handleClose");
     },
-    signout () {
-      sessionStorage.clear()
+    signout() {
+      sessionStorage.clear();
+    },
+    // 获取左侧列表权限
+    async getAsideItem() {
+      const res = await this.$http.get(`menus`);
+      const {
+        data: { data }
+      } = res;
+      this.asideItem = data;
+      console.log(this.asideItem);
     }
   }
-}
+};
 </script>
 
 <style scoped>
