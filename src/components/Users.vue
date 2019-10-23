@@ -138,8 +138,6 @@
 export default {
   created () {
     this.getUserMsg()
-    console.log(this.$route.path);
-    
   },
   data () {
     return {

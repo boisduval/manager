@@ -84,7 +84,6 @@ export default {
         data: { data }
       } = res;
       this.asideItem = data;
-      console.log(this.asideItem);
     }
   }
 };

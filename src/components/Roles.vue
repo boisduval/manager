@@ -97,7 +97,7 @@ export default {
         label: "authName"
       },
       checkedArr: [],
-      currentRoleId: ''
+      currentRoleId: ""
     };
   },
   methods: {
@@ -125,8 +125,8 @@ export default {
     },
     // 获取权限列表
     async getRights(role) {
-      let rights = role.children
-      this.currentRoleId = role.id
+      let rights = role.children;
+      this.currentRoleId = role.id;
       this.checkedArr = [];
       this.dialogFormVisibleRights = true;
       const res = await this.$http.get(`rights/tree`);
@@ -145,20 +145,22 @@ export default {
     },
     // 角色授权
     async editRights() {
-      this.dialogFormVisibleRights = false
+      this.dialogFormVisibleRights = false;
       // 获取全选节点
-      let arr1 = this.$refs.rightsTree.getCheckedKeys()
+      let arr1 = this.$refs.rightsTree.getCheckedKeys();
       // 获取半选节点
-      let arr2 = this.$refs.rightsTree.getHalfCheckedKeys()
-      let req = [...arr1, ...arr2]
-      req = ''+req
+      let arr2 = this.$refs.rightsTree.getHalfCheckedKeys();
+      let req = [...arr1, ...arr2];
+      req = "" + req;
       const res = await this.$http.post(`roles/${this.currentRoleId}/rights`, {
         rids: req
-      })
-      const {data:{meta}} = res
+      });
+      const {
+        data: { meta }
+      } = res;
       if (meta.status === 200) {
         this.$message.success(meta.msg);
-        this.getRolesList()
+        this.getRolesList();
       } else {
         this.$message.error(meta.msg);
       }
